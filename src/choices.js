@@ -10,7 +10,7 @@ define([
     './actions/groups',
     './actions/misc',
     './lib/utils'
-], function (Fuse, merge, Store, components, constants, TEMPLATES, actionsChoices, items, groups, misc, h) {
+], function (Fuse, merge, Store, components, constants, TEMPLATES, actionsChoices, actionsItems, groups, misc, h) {
     'use strict';
     const IS_IE11 = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style;
     const USER_DEFAULTS = {};
@@ -195,7 +195,7 @@ define([
             }
             const {id, groupId = -1, value = '', label = ''} = item;
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-            this._store.dispatch(items.highlightItem(id, true));
+            this._store.dispatch(actionsItems.highlightItem(id, true));
             if (runEvent) {
                 this.passedElement.triggerEvent(constants.EVENTS.highlightItem, {
                     id,
@@ -212,7 +212,7 @@ define([
             }
             const {id, groupId = -1, value = '', label = ''} = item;
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-            this._store.dispatch(items.highlightItem(id, false));
+            this._store.dispatch(actionsItems.highlightItem(id, false));
             this.passedElement.triggerEvent(constants.EVENTS.highlightItem, {
                 id,
                 value,
@@ -1088,7 +1088,7 @@ define([
             if (this.config.appendValue) {
                 passedValue += this.config.appendValue.toString();
             }
-            this._store.dispatch(items.addItem({
+            this._store.dispatch(actionsItems.addItem({
                 value: passedValue,
                 label: passedLabel,
                 id,
@@ -1117,7 +1117,7 @@ define([
             }
             const {id, value, label, choiceId, groupId} = item;
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-            this._store.dispatch(items.removeItem(id, choiceId));
+            this._store.dispatch(actionsItems.removeItem(id, choiceId));
             if (group && group.value) {
                 this.passedElement.triggerEvent(constants.EVENTS.removeItem, {
                     id,
