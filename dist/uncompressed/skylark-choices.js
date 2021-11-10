@@ -3910,7 +3910,7 @@ define('skylark-choices/choices',[
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
             this._store.dispatch(items.highlightItem(id, true));
             if (runEvent) {
-                this.passedElement.triggerEvent(constants.EVENTS.undefined, {
+                this.passedElement.triggerEvent(constants.EVENTS.highlightItem, {
                     id,
                     value,
                     label,
@@ -3926,7 +3926,7 @@ define('skylark-choices/choices',[
             const {id, groupId = -1, value = '', label = ''} = item;
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
             this._store.dispatch(items.highlightItem(id, false));
-            this.passedElement.triggerEvent(constants.EVENTS.undefined, {
+            this.passedElement.triggerEvent(constants.EVENTS.highlightItem, {
                 id,
                 value,
                 label,
@@ -3935,7 +3935,7 @@ define('skylark-choices/choices',[
             return this;
         }
         highlightAll() {
-            this._store.items.forEach(item => this.undefined(item));
+            this._store.items.forEach(item => this.highlightItem(item));
             return this;
         }
         unhighlightAll() {
@@ -4022,7 +4022,7 @@ define('skylark-choices/choices',[
                 throw new TypeError(`value parameter must be a name of 'value' field in passed objects`);
             }
             if (replaceChoices) {
-                this.undefined();
+                this.clearChoices();
             }
             if (typeof choicesArrayOrFetcher === 'function') {
                 const fetcher = choicesArrayOrFetcher(this);
@@ -4267,7 +4267,7 @@ define('skylark-choices/choices',[
             const passedId = element.getAttribute('data-id');
             activeItems.forEach(item => {
                 if (item.id === parseInt(passedId, 10) && !item.highlighted) {
-                    this.undefined(item);
+                    this.highlightItem(item);
                 } else if (!hasShiftKey && item.highlighted) {
                     this.unhighlightItem(item);
                 }
@@ -4321,7 +4321,7 @@ define('skylark-choices/choices',[
                 this._triggerChange(lastItem.value);
             } else {
                 if (!hasHighlightedItems) {
-                    this.undefined(lastItem, false);
+                    this.highlightItem(lastItem, false);
                 }
                 this.removeHighlightedItems(true);
             }
@@ -4814,7 +4814,7 @@ define('skylark-choices/choices',[
             if (this._isSelectOneElement) {
                 this.removeActiveItems(id);
             }
-            this.passedElement.triggerEvent(constants.EVENTS.undefined, {
+            this.passedElement.triggerEvent(constants.EVENTS.addItem, {
                 id,
                 value: passedValue,
                 label: passedLabel,
@@ -4832,14 +4832,14 @@ define('skylark-choices/choices',[
             const group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
             this._store.dispatch(items.removeItem(id, choiceId));
             if (group && group.value) {
-                this.passedElement.triggerEvent(constants.EVENTS.undefined, {
+                this.passedElement.triggerEvent(constants.EVENTS.removeItem, {
                     id,
                     value,
                     label,
                     groupValue: group.value
                 });
             } else {
-                this.passedElement.triggerEvent(constants.EVENTS.undefined, {
+                this.passedElement.triggerEvent(constants.EVENTS.removeItem, {
                     id,
                     value,
                     label
