@@ -4413,7 +4413,7 @@ define('skylark-choices/choices',[
             this._currentValue = newValue;
             this._highlightPosition = 0;
             this._isSearching = true;
-            this._store.dispatch(d.filterChoices(results));
+            this._store.dispatch(actionsChoices.filterChoices(results));
             return results.length;
         }
         _addEventListeners() {
@@ -4516,7 +4516,7 @@ define('skylark-choices/choices',[
                 const canSearch = this._canSearch && canAddItem.response;
                 if (userHasRemovedValue && canReactivateChoices) {
                     this._isSearching = false;
-                    this._store.dispatch(d.activateChoices(true));
+                    this._store.dispatch(actionsChoices.activateChoices(true));
                 } else if (canSearch) {
                     this._handleSearch(this.input.value);
                 }
@@ -4855,7 +4855,7 @@ define('skylark-choices/choices',[
             const choiceLabel = label || value;
             const choiceId = choices ? choices.length + 1 : 1;
             const choiceElementId = `${ this._baseId }-${ this._idNames.itemChoice }-${ choiceId }`;
-            this._store.dispatch(d.addChoice({
+            this._store.dispatch(actionsChoices.addChoice({
                 id: choiceId,
                 groupId,
                 elementId: choiceElementId,
