@@ -10,7 +10,7 @@ define([
     './actions/groups',
     './actions/misc',
     './lib/utils'
-], function (Fuse, merge, Store, components, constants, TEMPLATES, actionsChoices, actionsItems, groups, misc, h) {
+], function (Fuse, merge, Store, components, constants, TEMPLATES, actionsChoices, actionsItems, groups, misc, utils) {
     'use strict';
     const IS_IE11 = '-ms-scroll-limit' in document.documentElement.style && '-ms-ime-align' in document.documentElement.style;
     const USER_DEFAULTS = {};
@@ -31,7 +31,7 @@ define([
                 Choices.defaults.options,
                 userConfig
             ], { arrayMerge: (_, sourceArray) => [...sourceArray] });
-            const invalidConfigOptions = h.diff(this.config, constants.DEFAULT_CONFIG);
+            const invalidConfigOptions = utils.diff(this.config, constants.DEFAULT_CONFIG);
             if (invalidConfigOptions.length) {
                 console.warn('Unknown config option(s) passed', invalidConfigOptions.join(', '));
             }
@@ -78,7 +78,7 @@ define([
             this._highlightPosition = 0;
             this._wasTap = true;
             this._placeholderValue = this._generatePlaceholderValue();
-            this._baseId = h.generateId(this.passedElement.element, 'choices-');
+            this._baseId = utils.generateId(this.passedElement.element, 'choices-');
             this._direction = this.passedElement.dir;
             if (!this._direction) {
                 const {direction: elementDirection} = window.getComputedStyle(this.passedElement.element);
@@ -139,7 +139,7 @@ define([
             this._createTemplates();
             this._createElements();
             this._createStructure();
-            this._initialState = h.cloneObject(this._store.state);
+            this._initialState = utils.cloneObject(this._store.state);
             this._store.subscribe(this._render);
             this._render();
             this._addEventListeners();
@@ -365,7 +365,7 @@ define([
             this.input.clear(shouldSetInputWidth);
             if (!this._isTextElement && this._canSearch) {
                 this._isSearching = false;
-                this._store.dispatch(d.activateChoices(true));
+                this._store.dispatch(actionsChoices.activateChoices(true));
             }
             return this;
         }
@@ -456,7 +456,7 @@ define([
         }
         _createChoicesFragment(choices, fragment = document.createDocumentFragment(), withinGroup = false) {
             const {renderSelectedChoices, searchResultLimit, renderChoiceLimit} = this.config;
-            const filter = this._isSearching ? h.sortByScore : this.config.sorter;
+            const filter = this._isSearching ? utils.sortByScore : this.config.sorter;
             const appendChoice = choice => {
                 const shouldRender = renderSelectedChoices === 'auto' ? this._isSelectOneElement || !choice.selected : true;
                 if (shouldRender) {
@@ -659,14 +659,14 @@ define([
                 });
             } else if (hasUnactiveChoices) {
                 this._isSearching = false;
-                this._store.dispatch(d.activateChoices(true));
+                this._store.dispatch(actionsChoices.activateChoices(true));
             }
         }
         _canAddItem(activeItems, value) {
             let canAddItem = true;
             let notice = typeof this.config.addItemText === 'function' ? this.config.addItemText(value) : this.config.addItemText;
             if (!this._isSelectOneElement) {
-                const isDuplicateValue = h.existsInArray(activeItems, value);
+                const isDuplicateValue = utils.existsInArray(activeItems, value);
                 if (this.config.maxItemCount > 0 && this.config.maxItemCount <= activeItems.length) {
                     canAddItem = false;
                     notice = typeof this.config.maxItemText === 'function' ? this.config.maxItemText(this.config.maxItemCount) : this.config.maxItemText;
@@ -878,13 +878,13 @@ define([
                 } else {
                     const currentEl = this.dropdown.element.querySelector(`.${ this.config.classNames.highlightedState }`);
                     if (currentEl) {
-                        nextEl = h.getAdjacentEl(currentEl, selectableChoiceIdentifier, directionInt);
+                        nextEl = utils.getAdjacentEl(currentEl, selectableChoiceIdentifier, directionInt);
                     } else {
                         nextEl = this.dropdown.element.querySelector(selectableChoiceIdentifier);
                     }
                 }
                 if (nextEl) {
-                    if (!h.isScrolledIntoView(nextEl, this.choiceList.element, directionInt)) {
+                    if (!utils.isScrolledIntoView(nextEl, this.choiceList.element, directionInt)) {
                         this.choiceList.scrollToChildElement(nextEl, directionInt);
                     }
                     this._highlightChoice(nextEl);
@@ -1112,7 +1112,7 @@ define([
             return this;
         }
         _removeItem(item) {
-            if (!item || !h.isType('Object', item)) {
+            if (!item || !utils.isType('Object', item)) {
                 return this;
             }
             const {id, value, label, choiceId, groupId} = item;
@@ -1165,7 +1165,7 @@ define([
             }
         }
         _addGroup({group, id, valueKey = 'value', labelKey = 'label'}) {
-            const groupChoices = h.isType('Object', group) ? group.choices : Array.from(group.getElementsByTagName('OPTION'));
+            const groupChoices = utils.isType('Object', group) ? group.choices : Array.from(group.getElementsByTagName('OPTION'));
             const groupId = id || Math.floor(new Date().valueOf() * Math.random());
             const isDisabled = group.disabled ? group.disabled : false;
             if (groupChoices) {
@@ -1179,7 +1179,7 @@ define([
                     const isOptDisabled = choice.disabled || choice.parentNode && choice.parentNode.disabled;
                     this._addChoice({
                         value: choice[valueKey],
-                        label: h.isType('Object', choice) ? choice[labelKey] : choice.innerHTML,
+                        label: utils.isType('Object', choice) ? choice[labelKey] : choice.innerHTML,
                         isSelected: choice.selected,
                         isDisabled: isOptDisabled,
                         groupId,
@@ -1208,7 +1208,7 @@ define([
             const {callbackOnCreateTemplates} = this.config;
             let userTemplates = {};
             if (callbackOnCreateTemplates && typeof callbackOnCreateTemplates === 'function') {
-                userTemplates = callbackOnCreateTemplates.call(this, h.strToEl);
+                userTemplates = callbackOnCreateTemplates.call(this, utils.strToEl);
             }
             this._templates = merge(TEMPLATES, userTemplates);
         }
@@ -1347,7 +1347,7 @@ define([
             });
         }
         _setChoiceOrItem(item) {
-            const itemType = h.getType(item).toLowerCase();
+            const itemType = utils.getType(item).toLowerCase();
             const handleType = {
                 object: () => {
                     if (!item.value) {
